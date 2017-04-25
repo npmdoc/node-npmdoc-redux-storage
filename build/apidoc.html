@@ -108,32 +108,6 @@
 
     </ol></li>
 
-    <li class="apidocModuleLi"><a href="#apidoc.module.redux-storage.createLoader">module redux-storage.createLoader</a><ol>
-
-        <li>
-
-            <a class="apidocElementLiA" href="#apidoc.element.redux-storage.createLoader.createLoader">
-            function <span class="apidocSignatureSpan">redux-storage.</span>createLoader
-            <span class="apidocSignatureSpan">(engine)</span>
-            </a>
-
-        </li>
-
-    </ol></li>
-
-    <li class="apidocModuleLi"><a href="#apidoc.module.redux-storage.createMiddleware">module redux-storage.createMiddleware</a><ol>
-
-        <li>
-
-            <a class="apidocElementLiA" href="#apidoc.element.redux-storage.createMiddleware.createMiddleware">
-            function <span class="apidocSignatureSpan">redux-storage.</span>createMiddleware
-            <span class="apidocSignatureSpan">(engine)</span>
-            </a>
-
-        </li>
-
-    </ol></li>
-
     <li class="apidocModuleLi"><a href="#apidoc.module.redux-storage.default">module redux-storage.default</a><ol>
 
         <li>
@@ -172,19 +146,6 @@
         <li>
 
             <span class="apidocSignatureSpan">string <span class="apidocSignatureSpan">redux-storage.default.</span>SAVE</span>
-
-        </li>
-
-    </ol></li>
-
-    <li class="apidocModuleLi"><a href="#apidoc.module.redux-storage.reducer">module redux-storage.reducer</a><ol>
-
-        <li>
-
-            <a class="apidocElementLiA" href="#apidoc.element.redux-storage.reducer.reducer">
-            function <span class="apidocSignatureSpan">redux-storage.</span>reducer
-            <span class="apidocSignatureSpan">(reducer)</span>
-            </a>
 
         </li>
 
@@ -356,134 +317,6 @@ const engine = createEngine(&#x27;my-save-key&#x27;);
 </div>
 
 <div class="apidocSectionDiv">
-<h1><a href="#apidoc.module.redux-storage.createLoader" id="apidoc.module.redux-storage.createLoader">module redux-storage.createLoader</a></h1>
-
-
-    <h2>
-        <a href="#apidoc.element.redux-storage.createLoader.createLoader" id="apidoc.element.redux-storage.createLoader.createLoader">
-        function <span class="apidocSignatureSpan">redux-storage.</span>createLoader
-        <span class="apidocSignatureSpan">(engine)</span>
-        </a>
-    </h2>
-    <ul>
-    <li>description and source-code<pre class="apidocCodePre">createLoader = function (engine) {
-    return function (store) {
-        var dispatchLoad = function dispatchLoad(state) {
-            return store.dispatch((0, _actions.load)(state));
-        };
-        return engine.load().then(function (newState) {
-            dispatchLoad(newState);
-            return newState;
-        });
-    };
-}</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-// BUT (!) an existing old state HAS NOT been restored yet! It&#x27;s up to you to
-// decide when this should happen. Most of the times you can/should do this
-// right after the store object has been created.
-
-// To load the previous state we create a loader function with our prepared
-// engine. The result is a function that can be used on any store object you
-// have at hand :)
-const load = storage.<span class="apidocCodeKeywordSpan">createLoader</span>(engine);
-load(store);
-
-// Notice that our load function will return a promise that can also be used
-// to respond to the restore event.
-load(store)
-.then((newState) =&#x3e; console.log(&#x27;Loaded state:&#x27;, newState))
-.catch(() =&#x3e; console.log(&#x27;Failed to load previous state&#x27;));
-...</pre></li>
-    </ul>
-
-
-</div>
-
-<div class="apidocSectionDiv">
-<h1><a href="#apidoc.module.redux-storage.createMiddleware" id="apidoc.module.redux-storage.createMiddleware">module redux-storage.createMiddleware</a></h1>
-
-
-    <h2>
-        <a href="#apidoc.element.redux-storage.createMiddleware.createMiddleware" id="apidoc.element.redux-storage.createMiddleware.createMiddleware">
-        function <span class="apidocSignatureSpan">redux-storage.</span>createMiddleware
-        <span class="apidocSignatureSpan">(engine)</span>
-        </a>
-    </h2>
-    <ul>
-    <li>description and source-code<pre class="apidocCodePre">createMiddleware = function (engine) {
-    var actionBlacklist = arguments.length &#x3e; 1 &#x26;&#x26; arguments[1] !== undefined ? arguments[1] : [];
-    var actionWhitelist = arguments.length &#x3e; 2 &#x26;&#x26; arguments[2] !== undefined ? arguments[2] : [];
-
-    // Also don&#x27;t save if we process our own actions
-    var blacklistedActions = [].concat(_toConsumableArray(actionBlacklist), [_constants.LOAD, _constants.SAVE]);
-
-    if (process.env.NODE_ENV !== &#x27;production&#x27; &#x26;&#x26; Array.isArray(actionWhitelist)) {
-        warnAboutConfusingFiltering(actionBlacklist, actionWhitelist);
-    }
-
-    return function (_ref) {
-        var dispatch = _ref.dispatch,
-            getState = _ref.getState;
-
-        return function (next) {
-            return function (action) {
-                var result = next(action);
-
-                if (!isValidAction(action)) {
-                    return result;
-                }
-
-                var isOnBlacklist = blacklistedActions.indexOf(action.type) !== -1;
-                var isOnWhitelist = handleWhitelist(action, actionWhitelist);
-
-                // Skip blacklisted actions
-                if (!isOnBlacklist &#x26;&#x26; isOnWhitelist) {
-                    (function () {
-                        var saveState = getState();
-                        var saveAction = (0, _actions.save)(saveState);
-
-                        if (process.env.NODE_ENV !== &#x27;production&#x27;) {
-                            if (!saveAction.meta) {
-                                saveAction.meta = {};
-                            }
-                            saveAction.meta.origin = action;
-                        }
-
-                        var dispatchSave = function dispatchSave() {
-                            return dispatch(saveAction);
-                        };
-                        engine.save(saveState).then(dispatchSave)[&#x27;catch&#x27;](swallow);
-                    })();
-                }
-
-                return result;
-            };
-        };
-    };
-}</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-
-// And with the engine we can create our middleware function. The middleware
-// is responsible for calling `engine.save` with the current state afer
-// every dispatched action.
-//
-// Note: You can provide a list of action types as second argument, those
-//       actions will be filtered and WON&#x27;T trigger calls to `engine.save`!
-const middleware = storage.<span class="apidocCodeKeywordSpan">createMiddleware</span>(engine);
-
-// As everything is prepared, we can go ahead and combine all parts as usual
-const createStoreWithMiddleware = applyMiddleware(middleware)(createStore);
-const store = createStoreWithMiddleware(reducer);
-
-// At this stage the whole system is in place and every action will trigger
-// a save operation.
-...</pre></li>
-    </ul>
-
-
-</div>
-
-<div class="apidocSectionDiv">
 <h1><a href="#apidoc.module.redux-storage.default" id="apidoc.module.redux-storage.default">module redux-storage.default</a></h1>
 
 
@@ -640,45 +473,6 @@ const engine = createEngine(&#x27;my-save-key&#x27;);
 
 
 
-
-
-</div>
-
-<div class="apidocSectionDiv">
-<h1><a href="#apidoc.module.redux-storage.reducer" id="apidoc.module.redux-storage.reducer">module redux-storage.reducer</a></h1>
-
-
-    <h2>
-        <a href="#apidoc.element.redux-storage.reducer.reducer" id="apidoc.element.redux-storage.reducer.reducer">
-        function <span class="apidocSignatureSpan">redux-storage.</span>reducer
-        <span class="apidocSignatureSpan">(reducer)</span>
-        </a>
-    </h2>
-    <ul>
-    <li>description and source-code<pre class="apidocCodePre">reducer = function (reducer) {
-    var merger = arguments.length &#x3e; 1 &#x26;&#x26; arguments[1] !== undefined ? arguments[1] : _reduxStorageMergerSimple2[&#x27;default&#x27;];
-
-    return function (state, action) {
-        return reducer(action.type === _constants.LOAD ? merger(state, action.payload) : state, action);
-    };
-}</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-
-// We need to wrap the base reducer, as this is the place where the loaded
-// state will be injected.
-//
-// Note: The reducer does nothing special! It just listens for the LOAD
-//       action and merge in the provided state :)
-// Note: A custom merger function can be passed as second argument
-const reducer = storage.<span class="apidocCodeKeywordSpan">reducer</span>(combineReducers(reducers));
-
-// Now it&#x27;s time to decide which storage engine should be used
-//
-// Note: The arguments to `createEngine` are different for every engine!
-import createEngine from &#x27;redux-storage-engine-localstorage&#x27;;
-const engine = createEngine(&#x27;my-save-key&#x27;);
-...</pre></li>
-    </ul>
 
 
 </div>
