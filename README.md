@@ -1,4 +1,7 @@
-# api documentation for  [redux-storage (v4.1.2)](https://github.com/react-stack/redux-storage)  [![npm package](https://img.shields.io/npm/v/npmdoc-redux-storage.svg?style=flat-square)](https://www.npmjs.org/package/npmdoc-redux-storage) [![travis-ci.org build-status](https://api.travis-ci.org/npmdoc/node-npmdoc-redux-storage.svg)](https://travis-ci.org/npmdoc/node-npmdoc-redux-storage)
+# npmdoc-redux-storage
+
+#### basic api documentation for  [redux-storage (v4.1.2)](https://github.com/react-stack/redux-storage)  [![npm package](https://img.shields.io/npm/v/npmdoc-redux-storage.svg?style=flat-square)](https://www.npmjs.org/package/npmdoc-redux-storage) [![travis-ci.org build-status](https://api.travis-ci.org/npmdoc/node-npmdoc-redux-storage.svg)](https://travis-ci.org/npmdoc/node-npmdoc-redux-storage)
+
 #### Persistence layer for redux with flexible backends
 
 [![NPM](https://nodei.co/npm/redux-storage.png?downloads=true&downloadRank=true&stars=true)](https://www.npmjs.com/package/redux-storage)
@@ -94,7 +97,8 @@
     "scripts": {
         "test": "make lint test build"
     },
-    "version": "4.1.2"
+    "version": "4.1.2",
+    "bin": {}
 }
 ```
 
